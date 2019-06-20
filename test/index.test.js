@@ -6,7 +6,7 @@ const Index = require('../src')
 
 Test('Index', indexTest => {
   indexTest.test('Exports Logger', test => {
-    test.equal(Index.Logger, require('../src/logger'))
+    test.equal(Index.Logger, require('../src/logger').Logger)
     test.end()
   })
 
@@ -35,8 +35,8 @@ Test('Index', indexTest => {
     test.end()
   })
 
-  indexTest.test('Exports Kafka', test => {
-    test.equal(Index.Kafka, require('../src/kafka'))
+  indexTest.test('Custom Log Levels', test => {
+    test.equal(Index.CustomLogLevels, require('../src/logger').customLevels)
     test.end()
   })
 
