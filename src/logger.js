@@ -9,6 +9,10 @@ const customFormat = printf(({ level, message, timestamp }) => {
   return `${timestamp} - ${level}: ${message}`
 })
 
+// TODO need to figure out how to get the logger to choose a mode i.e. if you want either grpc or normal or both
+// let grpcLogging = false
+// let normalLogging = false
+
 let grpcLogger
 
 const customLevels = {
@@ -16,11 +20,37 @@ const customLevels = {
   AUDIT: 'audit'
 }
 
-const eventLog = async (message) => {
+const eventLog = async (messageProtocol, ...params) => {
+  let service
+  let isSpanClose = false
+  let rootTraceId
   if (!grpcLogger) {
     grpcLogger = new DefaultEventLogger()
   }
-  return grpcLogger.log(message)
+  if (params) {
+    service = params[0]
+    if (params[1]) {
+      if (typeof params[1] === 'boolean') {
+        isSpanClose = params[1]
+        if (params[2]) {
+          rootTraceId = params[2]
+        }
+      } else {
+        rootTraceId = params[1]
+      }
+    }
+  }
+  if (!messageProtocol.metadata.trace) {
+    await grpcLogger.createSpanForMessageEnvelope(messageProtocol, service)
+  } else if (isSpanClose) {
+    await grpcLogger.logSpan(messageProtocol.metadata.trace)
+  } else {
+    if (!rootTraceId) {
+      await grpcLogger.createChildSpanForMessageEnvelope(messageProtocol, messageProtocol.metadata.trace, service)
+    } else {
+      await grpcLogger.createSpanForMessageEnvelope(messageProtocol, service, rootTraceId)
+    }
+  }
 }
 
 const Logger = createLogger({
@@ -51,9 +81,9 @@ const Logger = createLogger({
 
 let origInfoLog = Logger.info
 
-Logger.info = async function (msg) {
+Logger.info = async function (msg, ...params) {
   if (typeof msg === 'object') {
-    await eventLog(msg)
+    await eventLog(msg, ...params)
   } else {
     origInfoLog.apply(Logger, arguments)
   }
@@ -61,9 +91,9 @@ Logger.info = async function (msg) {
 
 let origDebugLog = Logger.debug
 
-Logger.debug = async function (msg) {
+Logger.debug = async function (msg, ...params) {
   if (typeof msg === 'object') {
-    await eventLog(msg)
+    await eventLog(msg, ...params)
   } else {
     origDebugLog.apply(Logger, arguments)
   }
@@ -71,13 +101,13 @@ Logger.debug = async function (msg) {
 
 let origLog = Logger.log
 
-Logger.log = async function (level, msg) {
+Logger.log = async function (level, msg, ...params) {
   switch (level) {
     case (customLevels.TRACE):
-      await eventLog(msg)
+      await eventLog(msg, ...params)
       break
     case (customLevels.AUDIT):
-      await eventLog(msg)
+      await eventLog(msg, ...params)
       break
     default:
       origLog.apply(Logger, arguments)

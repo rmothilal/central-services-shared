@@ -22,13 +22,16 @@
     "services"
   ],
   "author": "Dwolla, ModusBox",
+  "contributors": [
+    "Rajiv Mothilal <rajiv.mothilal@modusbox.com>"
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mojaloop/central-services-shared/issues"
   },
   "homepage": "https://github.com/mojaloop/central-services-shared#readme",
   "dependencies": {
-    "@mojaloop/event-sdk": "6.4.6-snapshot",
+    "@mojaloop/event-sdk": "6.4.8-snapshot",
     "async": "3.0.1",
     "debug": "4.1.1",
     "winston": "3.2.1"
