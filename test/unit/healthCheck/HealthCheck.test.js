@@ -23,8 +23,8 @@ Test('HealthCheck test', healthCheckTest => {
       const response = await healthCheck.getHealth()
 
       // Assert
-      const validationResult = Joi.validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
-      test.equal(validationResult.error, null, 'The response matches the validation schema')
+      const validationResult = Joi.object().validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
+      test.notOk(validationResult.error)
       test.deepEqual(response.services, expectedServices, 'The sub-services are correct')
       test.end()
     })
@@ -51,8 +51,8 @@ Test('HealthCheck test', healthCheckTest => {
       const response = await healthCheck.getHealth()
 
       // Assert
-      const validationResult = Joi.validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
-      test.equal(validationResult.error, null, 'The response matches the validation schema')
+      const validationResult = Joi.object().validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
+      test.notOk(validationResult.error)
       test.deepEqual(response.services, expectedServices, 'The sub-services are correct')
       test.end()
     })
@@ -74,8 +74,8 @@ Test('HealthCheck test', healthCheckTest => {
       const response = await healthCheck.getHealth()
 
       // Assert
-      const validationResult = Joi.validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
-      test.equal(validationResult.error, null, 'The response matches the validation schema')
+      const validationResult = Joi.object().validate(response, schema) // We use Joi to validate the results as they rely on timestamps that are variable
+      test.notOk(validationResult.error)
       test.end()
     })
 
